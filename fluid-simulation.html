@@ -94,7 +94,14 @@
         }
 
         const grid = Array(GRID_SIZE).fill().map(() => 
-            Array(GRID_SIZE).fill().map(() => new FluidCell())
+            Array(GRID_SIZE).fill().map(() => {
+                const cell = new FluidCell();
+                // Increase initial density for more visible effect
+                cell.density = Math.random() * 50;  
+                cell.velocityX = (Math.random() - 0.5) * 4;  
+                cell.velocityY = (Math.random() - 0.5) * 4;
+                return cell;
+            })
         );
 
         function diffuse(property, diffusionRate) {
@@ -212,14 +219,15 @@
             const j = Math.floor(y / cellHeight);
 
             if (i > 0 && i < GRID_SIZE - 1 && j > 0 && j < GRID_SIZE - 1) {
-                grid[i][j].velocityX += dx * 50;
-                grid[i][j].velocityY += dy * 50;
-                grid[i][j].density += 50;
+                grid[i][j].velocityX += dx * 100;  
+                grid[i][j].velocityY += dy * 100;
+                grid[i][j].density += 100;  
             }
         }
 
         function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            // Darker background for better contrast
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             for (let i = 0; i < GRID_SIZE; i++) {
@@ -229,9 +237,13 @@
                     const y = j * cellHeight;
 
                     if (cell.density > 0) {
-                        const intensity = Math.min(255, cell.density * 5);
-                        ctx.fillStyle = `hsla(${200 + cell.density}, 70%, 50%, ${cell.density / 100})`;
-                        ctx.fillRect(x, y, cellWidth, cellHeight);
+                        const intensity = Math.min(255, cell.density * 15);  
+                        const hue = (cell.density * 3) % 360;  
+                        const saturation = 100;  
+                        const lightness = 60;    
+                        const opacity = Math.min(1.0, cell.density / 30);  
+                        ctx.fillStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${opacity})`;
+                        ctx.fillRect(x, y, cellWidth + 1, cellHeight + 1);  
                     }
                 }
             }
@@ -244,6 +256,15 @@
                 const dx = mouseX - lastMouseX;
                 const dy = mouseY - lastMouseY;
                 addForce(mouseX, mouseY, dx * 0.1, dy * 0.1);
+            } else {
+                // Add some automatic movement when there's no interaction
+                const time = Date.now() * 0.001;
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const radius = Math.min(canvas.width, canvas.height) * 0.2;
+                const x = centerX + Math.cos(time) * radius;
+                const y = centerY + Math.sin(time * 0.7) * radius;
+                addForce(x, y, Math.cos(time * 2) * 2, Math.sin(time * 1.5) * 2);
             }
 
             step();
