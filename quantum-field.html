@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Gallery - Quantum Field</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            display: block;
+        }
+        .nav-dropdown {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        select {
+            font-family: 'Share Tech Mono', monospace;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+        select:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #00ff00;
+        }
+        option {
+            background: #000;
+            color: #00ff00;
+        }
+        option:checked {
+            background: #003300;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-dropdown">
+        <select onchange="window.location.href=this.value">
+            <option value="index.html">01 - Starfield Black Hole</option>
+            <option value="matrix-rain.html">02 - Matrix Digital Rain</option>
+            <option value="particle-vortex.html">03 - Particle Vortex</option>
+            <option value="wave-particles.html">04 - Wave Particles</option>
+            <option value="dna-helix.html">05 - DNA Helix</option>
+            <option value="fireworks.html">06 - Fireworks Show</option>
+            <option value="galaxy-spiral.html">07 - Galaxy Spiral</option>
+            <option value="neural-network.html">08 - Neural Network</option>
+            <option value="plasma-field.html">09 - Plasma Field</option>
+            <option value="crystal-growth.html">10 - Crystal Growth</option>
+            <option value="aurora-waves.html">11 - Aurora Waves</option>
+            <option value="fractal-tree.html">12 - Fractal Tree</option>
+            <option value="particle-life.html">13 - Particle Life</option>
+            <option value="quantum-field.html" selected>14 - Quantum Field</option>
+            <option value="cosmic-web.html">15 - Cosmic Web</option>
+            <option value="bubble-chamber.html">16 - Bubble Chamber</option>
+            <option value="laser-show.html">17 - Laser Show</option>
+            <option value="mandelbrot.html">18 - Mandelbrot Zoom</option>
+            <option value="fluid-simulation.html">19 - Fluid Simulation</option>
+            <option value="atomic-orbital.html">20 - Atomic Orbital</option>
+            <option value="nebula-cloud.html">21 - Nebula Cloud</option>
+        </select>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class QuantumParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.phase = Math.random() * Math.PI * 2;
+                this.amplitude = Math.random() * 20 + 10;
+                this.frequency = Math.random() * 0.02 + 0.01;
+                this.speed = Math.random() * 0.5 + 0.5;
+                this.entangled = null;
+                this.hue = Math.random() * 60 + 180; // Blue to purple range
+            }
+
+            update(time) {
+                this.phase += this.speed * 0.01;
+                
+                // Quantum tunneling effect
+                if (Math.random() < 0.001) {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                }
+
+                // Entanglement effect
+                if (this.entangled) {
+                    this.phase = -this.entangled.phase;
+                }
+            }
+
+            draw(time) {
+                const waveX = this.x + Math.cos(this.phase + time * this.frequency) * this.amplitude;
+                const waveY = this.y + Math.sin(this.phase + time * this.frequency) * this.amplitude;
+
+                // Draw probability cloud
+                const gradient = ctx.createRadialGradient(
+                    waveX, waveY, 0,
+                    waveX, waveY, this.amplitude
+                );
+                gradient.addColorStop(0, `hsla(${this.hue}, 70%, 50%, 0.3)`);
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+                ctx.beginPath();
+                ctx.arc(waveX, waveY, this.amplitude, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Draw particle core
+                ctx.beginPath();
+                ctx.arc(waveX, waveY, 2, 0, Math.PI * 2);
+                ctx.fillStyle = `hsl(${this.hue}, 70%, 50%)`;
+                ctx.fill();
+
+                // Draw entanglement line
+                if (this.entangled) {
+                    ctx.beginPath();
+                    ctx.moveTo(waveX, waveY);
+                    const entangledX = this.entangled.x + Math.cos(this.entangled.phase + time * this.entangled.frequency) * this.entangled.amplitude;
+                    const entangledY = this.entangled.y + Math.sin(this.entangled.phase + time * this.entangled.frequency) * this.entangled.amplitude;
+                    ctx.lineTo(entangledX, entangledY);
+                    ctx.strokeStyle = `hsla(${this.hue}, 70%, 50%, 0.2)`;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        const particles = [];
+        const numParticles = 50;
+        let time = 0;
+
+        // Create particles
+        for (let i = 0; i < numParticles; i++) {
+            particles.push(new QuantumParticle(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height
+            ));
+        }
+
+        // Create some entangled pairs
+        for (let i = 0; i < numParticles / 2; i++) {
+            if (Math.random() < 0.3) {
+                const particle1 = particles[i];
+                const particle2 = particles[numParticles - 1 - i];
+                particle1.entangled = particle2;
+                particle2.entangled = particle1;
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update(time);
+                particle.draw(time);
+            });
+
+            time += 0.1;
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Add mouse interaction
+        canvas.addEventListener('mousemove', (e) => {
+            particles.forEach(particle => {
+                const dx = e.clientX - particle.x;
+                const dy = e.clientY - particle.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 200) {
+                    particle.amplitude = 30 + (200 - distance) / 4;
+                    particle.frequency = 0.03 + (200 - distance) * 0.0001;
+                }
+            });
+        });
+
+        animate();
+    </script>
+</body>
+</html>

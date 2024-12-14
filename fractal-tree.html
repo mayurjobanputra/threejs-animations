@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Gallery - Fractal Tree</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            display: block;
+        }
+        .nav-dropdown {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        select {
+            font-family: 'Share Tech Mono', monospace;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+        select:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #00ff00;
+        }
+        option {
+            background: #000;
+            color: #00ff00;
+        }
+        option:checked {
+            background: #003300;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-dropdown">
+        <select onchange="window.location.href=this.value">
+            <option value="index.html">01 - Starfield Black Hole</option>
+            <option value="matrix-rain.html">02 - Matrix Digital Rain</option>
+            <option value="particle-vortex.html">03 - Particle Vortex</option>
+            <option value="wave-particles.html">04 - Wave Particles</option>
+            <option value="dna-helix.html">05 - DNA Helix</option>
+            <option value="fireworks.html">06 - Fireworks Show</option>
+            <option value="galaxy-spiral.html">07 - Galaxy Spiral</option>
+            <option value="neural-network.html">08 - Neural Network</option>
+            <option value="plasma-field.html">09 - Plasma Field</option>
+            <option value="crystal-growth.html">10 - Crystal Growth</option>
+            <option value="aurora-waves.html">11 - Aurora Waves</option>
+            <option value="fractal-tree.html" selected>12 - Fractal Tree</option>
+            <option value="particle-life.html">13 - Particle Life</option>
+            <option value="quantum-field.html">14 - Quantum Field</option>
+            <option value="cosmic-web.html">15 - Cosmic Web</option>
+            <option value="bubble-chamber.html">16 - Bubble Chamber</option>
+            <option value="laser-show.html">17 - Laser Show</option>
+            <option value="mandelbrot.html">18 - Mandelbrot Zoom</option>
+            <option value="fluid-simulation.html">19 - Fluid Simulation</option>
+            <option value="atomic-orbital.html">20 - Atomic Orbital</option>
+            <option value="nebula-cloud.html">21 - Nebula Cloud</option>
+        </select>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let angle = Math.PI / 4;
+        let branchDecay = 0.67;
+        let maxDepth = 12;
+        let time = 0;
+        let mouseX = 0;
+        let mouseY = 0;
+
+        function drawTree(startX, startY, len, angle, depth, hue) {
+            ctx.beginPath();
+            ctx.save();
+
+            ctx.translate(startX, startY);
+            ctx.rotate(angle);
+
+            // Calculate line width based on depth
+            ctx.lineWidth = depth;
+            
+            // Create gradient color
+            const gradient = ctx.createLinearGradient(0, 0, 0, -len);
+            gradient.addColorStop(0, `hsla(${hue}, 100%, 50%, 0.8)`);
+            gradient.addColorStop(1, `hsla(${hue + 30}, 100%, 50%, 0.8)`);
+            ctx.strokeStyle = gradient;
+
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, -len);
+            ctx.stroke();
+
+            if (depth > 0) {
+                // Calculate new length and angles
+                const newLen = len * branchDecay;
+                const leftAngle = angle + Math.sin(time * 0.002) * 0.5;
+                const rightAngle = angle - Math.cos(time * 0.002) * 0.5;
+
+                // Draw branches recursively
+                ctx.translate(0, -len);
+                drawTree(0, 0, newLen, leftAngle, depth - 1, hue + 20);
+                drawTree(0, 0, newLen, rightAngle, depth - 1, hue + 20);
+            }
+
+            ctx.restore();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Calculate angle based on mouse position
+            const dx = mouseX - canvas.width / 2;
+            const dy = mouseY - canvas.height;
+            angle = Math.atan2(dx, -dy) * 0.1;
+
+            // Draw the main tree
+            drawTree(
+                canvas.width / 2, 
+                canvas.height / 2 + canvas.height / 4, 
+                canvas.height / 3,
+                -Math.PI / 2 + angle,
+                maxDepth,
+                time % 360
+            );
+
+            time += 1;
+        }
+
+        // Mouse interaction
+        canvas.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        animate();
+    </script>
+</body>
+</html>

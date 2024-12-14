@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Gallery - Laser Show</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            display: block;
+        }
+        .nav-dropdown {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        select {
+            font-family: 'Share Tech Mono', monospace;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+        select:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #00ff00;
+        }
+        option {
+            background: #000;
+            color: #00ff00;
+        }
+        option:checked {
+            background: #003300;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-dropdown">
+        <select onchange="window.location.href=this.value">
+            <option value="index.html">01 - Starfield Black Hole</option>
+            <option value="matrix-rain.html">02 - Matrix Digital Rain</option>
+            <option value="particle-vortex.html">03 - Particle Vortex</option>
+            <option value="wave-particles.html">04 - Wave Particles</option>
+            <option value="dna-helix.html">05 - DNA Helix</option>
+            <option value="fireworks.html">06 - Fireworks Show</option>
+            <option value="galaxy-spiral.html">07 - Galaxy Spiral</option>
+            <option value="neural-network.html">08 - Neural Network</option>
+            <option value="plasma-field.html">09 - Plasma Field</option>
+            <option value="crystal-growth.html">10 - Crystal Growth</option>
+            <option value="aurora-waves.html">11 - Aurora Waves</option>
+            <option value="fractal-tree.html">12 - Fractal Tree</option>
+            <option value="particle-life.html">13 - Particle Life</option>
+            <option value="quantum-field.html">14 - Quantum Field</option>
+            <option value="cosmic-web.html">15 - Cosmic Web</option>
+            <option value="bubble-chamber.html">16 - Bubble Chamber</option>
+            <option value="laser-show.html" selected>17 - Laser Show</option>
+            <option value="mandelbrot.html">18 - Mandelbrot Zoom</option>
+            <option value="fluid-simulation.html">19 - Fluid Simulation</option>
+            <option value="atomic-orbital.html">20 - Atomic Orbital</option>
+            <option value="nebula-cloud.html">21 - Nebula Cloud</option>
+        </select>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class LaserBeam {
+            constructor() {
+                this.reset();
+                this.thickness = Math.random() * 3 + 1;
+                this.hue = Math.random() * 360;
+                this.duration = Math.random() * 100 + 50;
+                this.age = 0;
+            }
+
+            reset() {
+                this.startX = Math.random() * canvas.width;
+                this.startY = Math.random() * canvas.height;
+                this.endX = Math.random() * canvas.width;
+                this.endY = Math.random() * canvas.height;
+                this.controlX = Math.random() * canvas.width;
+                this.controlY = Math.random() * canvas.height;
+                this.nextStartX = Math.random() * canvas.width;
+                this.nextStartY = Math.random() * canvas.height;
+                this.nextEndX = Math.random() * canvas.width;
+                this.nextEndY = Math.random() * canvas.height;
+                this.nextControlX = Math.random() * canvas.width;
+                this.nextControlY = Math.random() * canvas.height;
+            }
+
+            update() {
+                this.age++;
+                if (this.age >= this.duration) {
+                    this.age = 0;
+                    this.startX = this.nextStartX;
+                    this.startY = this.nextStartY;
+                    this.endX = this.nextEndX;
+                    this.endY = this.nextEndY;
+                    this.controlX = this.nextControlX;
+                    this.controlY = this.nextControlY;
+                    this.nextStartX = Math.random() * canvas.width;
+                    this.nextStartY = Math.random() * canvas.height;
+                    this.nextEndX = Math.random() * canvas.width;
+                    this.nextEndY = Math.random() * canvas.height;
+                    this.nextControlX = Math.random() * canvas.width;
+                    this.nextControlY = Math.random() * canvas.height;
+                }
+
+                const progress = this.age / this.duration;
+                this.currentStartX = this.lerp(this.startX, this.nextStartX, progress);
+                this.currentStartY = this.lerp(this.startY, this.nextStartY, progress);
+                this.currentEndX = this.lerp(this.endX, this.nextEndX, progress);
+                this.currentEndY = this.lerp(this.endY, this.nextEndY, progress);
+                this.currentControlX = this.lerp(this.controlX, this.nextControlX, progress);
+                this.currentControlY = this.lerp(this.controlY, this.nextControlY, progress);
+            }
+
+            lerp(start, end, progress) {
+                return start + (end - start) * progress;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.currentStartX, this.currentStartY);
+                ctx.quadraticCurveTo(
+                    this.currentControlX, this.currentControlY,
+                    this.currentEndX, this.currentEndY
+                );
+
+                // Create gradient along the path
+                const gradient = ctx.createLinearGradient(
+                    this.currentStartX, this.currentStartY,
+                    this.currentEndX, this.currentEndY
+                );
+                gradient.addColorStop(0, `hsla(${this.hue}, 100%, 50%, 1)`);
+                gradient.addColorStop(0.5, `hsla(${(this.hue + 30) % 360}, 100%, 50%, 0.8)`);
+                gradient.addColorStop(1, `hsla(${(this.hue + 60) % 360}, 100%, 50%, 1)`);
+
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = this.thickness;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+                // Add glow effect
+                ctx.strokeStyle = `hsla(${this.hue}, 100%, 50%, 0.3)`;
+                ctx.lineWidth = this.thickness + 4;
+                ctx.stroke();
+            }
+        }
+
+        const lasers = [];
+        const numLasers = 10;
+
+        for (let i = 0; i < numLasers; i++) {
+            lasers.push(new LaserBeam());
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            lasers.forEach(laser => {
+                laser.update();
+                laser.draw();
+            });
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Add mouse interaction
+        canvas.addEventListener('mousemove', (e) => {
+            lasers.forEach(laser => {
+                if (Math.random() < 0.1) {
+                    laser.nextControlX = e.clientX + (Math.random() - 0.5) * 200;
+                    laser.nextControlY = e.clientY + (Math.random() - 0.5) * 200;
+                }
+            });
+        });
+
+        canvas.addEventListener('click', () => {
+            lasers.forEach(laser => {
+                laser.hue = Math.random() * 360;
+                laser.reset();
+            });
+        });
+
+        animate();
+    </script>
+</body>
+</html>

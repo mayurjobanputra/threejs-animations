@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animation Gallery - Starfield Black Hole</title>
+    <title>Animation Gallery - DNA Helix</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         
@@ -47,11 +47,11 @@
 <body>
     <div class="nav-dropdown">
         <select onchange="window.location.href=this.value">
-            <option value="index.html" selected>01 - Starfield Black Hole</option>
+            <option value="index.html">01 - Starfield Black Hole</option>
             <option value="matrix-rain.html">02 - Matrix Digital Rain</option>
             <option value="particle-vortex.html">03 - Particle Vortex</option>
             <option value="wave-particles.html">04 - Wave Particles</option>
-            <option value="dna-helix.html">05 - DNA Helix</option>
+            <option value="dna-helix.html" selected>05 - DNA Helix</option>
             <option value="fireworks.html">06 - Fireworks Show</option>
             <option value="galaxy-spiral.html">07 - Galaxy Spiral</option>
             <option value="neural-network.html">08 - Neural Network</option>
@@ -72,87 +72,68 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Set up scene
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Create stars
-        const starsGeometry = new THREE.BufferGeometry();
-        const starsMaterial = new THREE.PointsMaterial({
-            color: 0xFFFFFF,
-            size: 0.1,
-        });
+        // DNA parameters
+        const helixRadius = 3;
+        const helixHeight = 15;
+        const helixTurns = 4;
+        const pointsPerTurn = 30;
+        const totalPoints = helixTurns * pointsPerTurn;
+        const sphereRadius = 0.2;
+        const baseDistance = 2;
 
-        const starsVertices = [];
-        for (let i = 0; i < 10000; i++) {
-            const x = (Math.random() - 0.5) * 2000;
-            const y = (Math.random() - 0.5) * 2000;
-            const z = (Math.random() - 0.5) * 2000;
-            starsVertices.push(x, y, z);
+        // Create DNA strands
+        const strand1 = new THREE.Group();
+        const strand2 = new THREE.Group();
+        scene.add(strand1);
+        scene.add(strand2);
+
+        // Sphere geometry and materials
+        const sphereGeometry = new THREE.SphereGeometry(sphereRadius, 16, 16);
+        const materials = [
+            new THREE.MeshBasicMaterial({ color: 0xff0000 }),
+            new THREE.MeshBasicMaterial({ color: 0x00ff00 }),
+            new THREE.MeshBasicMaterial({ color: 0x0000ff }),
+            new THREE.MeshBasicMaterial({ color: 0xffff00 })
+        ];
+
+        // Create connecting lines geometry
+        const lineGeometry = new THREE.BufferGeometry();
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+
+        // Create spheres for both strands
+        for (let i = 0; i < totalPoints; i++) {
+            const angle = (i / pointsPerTurn) * Math.PI * 2;
+            const y = (i / totalPoints) * helixHeight - helixHeight / 2;
+
+            // First strand
+            const x1 = Math.cos(angle) * helixRadius;
+            const z1 = Math.sin(angle) * helixRadius;
+            const sphere1 = new THREE.Mesh(sphereGeometry, materials[i % 4]);
+            sphere1.position.set(x1, y, z1);
+            strand1.add(sphere1);
+
+            // Second strand (180 degrees offset)
+            const x2 = Math.cos(angle + Math.PI) * helixRadius;
+            const z2 = Math.sin(angle + Math.PI) * helixRadius;
+            const sphere2 = new THREE.Mesh(sphereGeometry, materials[(i + 2) % 4]);
+            sphere2.position.set(x2, y, z2);
+            strand2.add(sphere2);
         }
 
-        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
-        const starField = new THREE.Points(starsGeometry, starsMaterial);
-        scene.add(starField);
-
-        // Create black hole
-        const blackHoleGeometry = new THREE.SphereGeometry(5, 32, 32);
-        const blackHoleMaterial = new THREE.MeshBasicMaterial({ 
-            color: 0x000000,
-            transparent: true,
-            opacity: 0.8
-        });
-        const blackHole = new THREE.Mesh(blackHoleGeometry, blackHoleMaterial);
-        scene.add(blackHole);
-
-        // Add glow effect
-        const glowGeometry = new THREE.SphereGeometry(6, 32, 32);
-        const glowMaterial = new THREE.MeshBasicMaterial({
-            color: 0x0066ff,
-            transparent: true,
-            opacity: 0.15
-        });
-        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-        scene.add(glow);
-
-        camera.position.z = 50;
+        camera.position.z = 20;
 
         // Animation
         function animate() {
             requestAnimationFrame(animate);
 
-            // Rotate starfield
-            starField.rotation.y += 0.0005;
-            starField.rotation.x += 0.0002;
-
-            // Make stars move towards the black hole
-            const positions = starsGeometry.attributes.position.array;
-            for (let i = 0; i < positions.length; i += 3) {
-                const x = positions[i];
-                const y = positions[i + 1];
-                const z = positions[i + 2];
-                
-                const distance = Math.sqrt(x * x + y * y + z * z);
-                if (distance < 10) {
-                    // Reset star position if too close to black hole
-                    positions[i] = (Math.random() - 0.5) * 2000;
-                    positions[i + 1] = (Math.random() - 0.5) * 2000;
-                    positions[i + 2] = (Math.random() - 0.5) * 2000;
-                } else {
-                    // Move towards center
-                    positions[i] *= 0.9995;
-                    positions[i + 1] *= 0.9995;
-                    positions[i + 2] *= 0.9995;
-                }
-            }
-            starsGeometry.attributes.position.needsUpdate = true;
-
-            // Rotate black hole and glow
-            blackHole.rotation.y += 0.01;
-            glow.rotation.y += 0.01;
+            strand1.rotation.y += 0.01;
+            strand2.rotation.y += 0.01;
 
             renderer.render(scene, camera);
         }

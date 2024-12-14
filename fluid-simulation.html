@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Gallery - Fluid Simulation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            display: block;
+        }
+        .nav-dropdown {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        select {
+            font-family: 'Share Tech Mono', monospace;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+        select:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #00ff00;
+        }
+        option {
+            background: #000;
+            color: #00ff00;
+        }
+        option:checked {
+            background: #003300;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-dropdown">
+        <select onchange="window.location.href=this.value">
+            <option value="index.html">01 - Starfield Black Hole</option>
+            <option value="matrix-rain.html">02 - Matrix Digital Rain</option>
+            <option value="particle-vortex.html">03 - Particle Vortex</option>
+            <option value="wave-particles.html">04 - Wave Particles</option>
+            <option value="dna-helix.html">05 - DNA Helix</option>
+            <option value="fireworks.html">06 - Fireworks Show</option>
+            <option value="galaxy-spiral.html">07 - Galaxy Spiral</option>
+            <option value="neural-network.html">08 - Neural Network</option>
+            <option value="plasma-field.html">09 - Plasma Field</option>
+            <option value="crystal-growth.html">10 - Crystal Growth</option>
+            <option value="aurora-waves.html">11 - Aurora Waves</option>
+            <option value="fractal-tree.html">12 - Fractal Tree</option>
+            <option value="particle-life.html">13 - Particle Life</option>
+            <option value="quantum-field.html">14 - Quantum Field</option>
+            <option value="cosmic-web.html">15 - Cosmic Web</option>
+            <option value="bubble-chamber.html">16 - Bubble Chamber</option>
+            <option value="laser-show.html">17 - Laser Show</option>
+            <option value="mandelbrot.html">18 - Mandelbrot Zoom</option>
+            <option value="fluid-simulation.html" selected>19 - Fluid Simulation</option>
+            <option value="atomic-orbital.html">20 - Atomic Orbital</option>
+            <option value="nebula-cloud.html">21 - Nebula Cloud</option>
+        </select>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const GRID_SIZE = 50;
+        const cellWidth = canvas.width / GRID_SIZE;
+        const cellHeight = canvas.height / GRID_SIZE;
+
+        class FluidCell {
+            constructor() {
+                this.density = 0;
+                this.velocityX = 0;
+                this.velocityY = 0;
+                this.nextDensity = 0;
+                this.nextVelocityX = 0;
+                this.nextVelocityY = 0;
+            }
+        }
+
+        const grid = Array(GRID_SIZE).fill().map(() => 
+            Array(GRID_SIZE).fill().map(() => new FluidCell())
+        );
+
+        function diffuse(property, diffusionRate) {
+            const a = diffusionRate;
+            const c = 1 + 4 * a;
+
+            for (let k = 0; k < 20; k++) {
+                for (let i = 1; i < GRID_SIZE - 1; i++) {
+                    for (let j = 1; j < GRID_SIZE - 1; j++) {
+                        grid[i][j][`next${property}`] = (
+                            grid[i][j][property] +
+                            a * (
+                                grid[i-1][j][property] +
+                                grid[i+1][j][property] +
+                                grid[i][j-1][property] +
+                                grid[i][j+1][property]
+                            )
+                        ) / c;
+                    }
+                }
+                updateProperty(property);
+            }
+        }
+
+        function updateProperty(property) {
+            for (let i = 1; i < GRID_SIZE - 1; i++) {
+                for (let j = 1; j < GRID_SIZE - 1; j++) {
+                    grid[i][j][property] = grid[i][j][`next${property}`];
+                }
+            }
+        }
+
+        function advect(property, dt) {
+            for (let i = 1; i < GRID_SIZE - 1; i++) {
+                for (let j = 1; j < GRID_SIZE - 1; j++) {
+                    const x = i - grid[i][j].velocityX * dt;
+                    const y = j - grid[i][j].velocityY * dt;
+                    
+                    const i0 = Math.floor(x);
+                    const i1 = i0 + 1;
+                    const j0 = Math.floor(y);
+                    const j1 = j0 + 1;
+                    
+                    const s1 = x - i0;
+                    const s0 = 1 - s1;
+                    const t1 = y - j0;
+                    const t0 = 1 - t1;
+
+                    const clampedI0 = Math.max(0, Math.min(GRID_SIZE - 1, i0));
+                    const clampedI1 = Math.max(0, Math.min(GRID_SIZE - 1, i1));
+                    const clampedJ0 = Math.max(0, Math.min(GRID_SIZE - 1, j0));
+                    const clampedJ1 = Math.max(0, Math.min(GRID_SIZE - 1, j1));
+
+                    grid[i][j][`next${property}`] = 
+                        s0 * (t0 * grid[clampedI0][clampedJ0][property] +
+                              t1 * grid[clampedI0][clampedJ1][property]) +
+                        s1 * (t0 * grid[clampedI1][clampedJ0][property] +
+                              t1 * grid[clampedI1][clampedJ1][property]);
+                }
+            }
+            updateProperty(property);
+        }
+
+        function project() {
+            const div = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
+            const p = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
+
+            for (let i = 1; i < GRID_SIZE - 1; i++) {
+                for (let j = 1; j < GRID_SIZE - 1; j++) {
+                    div[i][j] = -0.5 * (
+                        grid[i+1][j].velocityX -
+                        grid[i-1][j].velocityX +
+                        grid[i][j+1].velocityY -
+                        grid[i][j-1].velocityY
+                    );
+                    p[i][j] = 0;
+                }
+            }
+
+            for (let k = 0; k < 20; k++) {
+                for (let i = 1; i < GRID_SIZE - 1; i++) {
+                    for (let j = 1; j < GRID_SIZE - 1; j++) {
+                        p[i][j] = (div[i][j] +
+                            p[i-1][j] + p[i+1][j] +
+                            p[i][j-1] + p[i][j+1]
+                        ) / 4;
+                    }
+                }
+            }
+
+            for (let i = 1; i < GRID_SIZE - 1; i++) {
+                for (let j = 1; j < GRID_SIZE - 1; j++) {
+                    grid[i][j].velocityX -= 0.5 * (p[i+1][j] - p[i-1][j]);
+                    grid[i][j].velocityY -= 0.5 * (p[i][j+1] - p[i][j-1]);
+                }
+            }
+        }
+
+        function step() {
+            diffuse('velocityX', 0.1);
+            diffuse('velocityY', 0.1);
+            project();
+            advect('velocityX', 1);
+            advect('velocityY', 1);
+            project();
+            diffuse('density', 0.1);
+            advect('density', 1);
+        }
+
+        let mouseX = 0, mouseY = 0, lastMouseX = 0, lastMouseY = 0;
+        let isMouseDown = false;
+
+        function addForce(x, y, dx, dy) {
+            const i = Math.floor(x / cellWidth);
+            const j = Math.floor(y / cellHeight);
+
+            if (i > 0 && i < GRID_SIZE - 1 && j > 0 && j < GRID_SIZE - 1) {
+                grid[i][j].velocityX += dx * 50;
+                grid[i][j].velocityY += dy * 50;
+                grid[i][j].density += 50;
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    const cell = grid[i][j];
+                    const x = i * cellWidth;
+                    const y = j * cellHeight;
+
+                    if (cell.density > 0) {
+                        const intensity = Math.min(255, cell.density * 5);
+                        ctx.fillStyle = `hsla(${200 + cell.density}, 70%, 50%, ${cell.density / 100})`;
+                        ctx.fillRect(x, y, cellWidth, cellHeight);
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isMouseDown) {
+                const dx = mouseX - lastMouseX;
+                const dy = mouseY - lastMouseY;
+                addForce(mouseX, mouseY, dx * 0.1, dy * 0.1);
+            }
+
+            step();
+            draw();
+
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isMouseDown = false;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        animate();
+    </script>
+</body>
+</html>

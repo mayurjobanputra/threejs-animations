@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Gallery - Particle Vortex</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            display: block;
+        }
+        .nav-dropdown {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        select {
+            font-family: 'Share Tech Mono', monospace;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+        select:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #00ff00;
+        }
+        option {
+            background: #000;
+            color: #00ff00;
+        }
+        option:checked {
+            background: #003300;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-dropdown">
+        <select onchange="window.location.href=this.value">
+            <option value="index.html">01 - Starfield Black Hole</option>
+            <option value="matrix-rain.html">02 - Matrix Digital Rain</option>
+            <option value="particle-vortex.html" selected>03 - Particle Vortex</option>
+            <option value="wave-particles.html">04 - Wave Particles</option>
+            <option value="dna-helix.html">05 - DNA Helix</option>
+            <option value="fireworks.html">06 - Fireworks Show</option>
+            <option value="galaxy-spiral.html">07 - Galaxy Spiral</option>
+            <option value="neural-network.html">08 - Neural Network</option>
+            <option value="plasma-field.html">09 - Plasma Field</option>
+            <option value="crystal-growth.html">10 - Crystal Growth</option>
+            <option value="aurora-waves.html">11 - Aurora Waves</option>
+            <option value="fractal-tree.html">12 - Fractal Tree</option>
+            <option value="particle-life.html">13 - Particle Life</option>
+            <option value="quantum-field.html">14 - Quantum Field</option>
+            <option value="cosmic-web.html">15 - Cosmic Web</option>
+            <option value="bubble-chamber.html">16 - Bubble Chamber</option>
+            <option value="laser-show.html">17 - Laser Show</option>
+            <option value="mandelbrot.html">18 - Mandelbrot Zoom</option>
+            <option value="fluid-simulation.html">19 - Fluid Simulation</option>
+            <option value="atomic-orbital.html">20 - Atomic Orbital</option>
+            <option value="nebula-cloud.html">21 - Nebula Cloud</option>
+        </select>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 1000;
+        const colors = ['#FF3F8E', '#04C2C9', '#2E55C1'];
+
+        // Particle class
+        class Particle {
+            constructor() {
+                this.x = canvas.width / 2;
+                this.y = canvas.height / 2;
+                this.angle = Math.random() * Math.PI * 2;
+                this.radius = Math.random() * 200 + 20;
+                this.speed = Math.random() * 2 + 0.5;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.size = Math.random() * 3 + 1;
+                this.spin = Math.random() * 0.2 - 0.1;
+            }
+
+            update() {
+                this.angle += this.spin;
+                this.radius += Math.sin(this.angle) * 0.2;
+                this.x = canvas.width / 2 + Math.cos(this.angle) * this.radius;
+                this.y = canvas.height / 2 + Math.sin(this.angle) * this.radius;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        // Create particles
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        animate();
+    </script>
+</body>
+</html>

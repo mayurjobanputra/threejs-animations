@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Gallery - Atomic Orbital</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            display: block;
+        }
+        .nav-dropdown {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        select {
+            font-family: 'Share Tech Mono', monospace;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+        select:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #00ff00;
+        }
+        option {
+            background: #000;
+            color: #00ff00;
+        }
+        option:checked {
+            background: #003300;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-dropdown">
+        <select onchange="window.location.href=this.value">
+            <option value="index.html">01 - Starfield Black Hole</option>
+            <option value="matrix-rain.html">02 - Matrix Digital Rain</option>
+            <option value="particle-vortex.html">03 - Particle Vortex</option>
+            <option value="wave-particles.html">04 - Wave Particles</option>
+            <option value="dna-helix.html">05 - DNA Helix</option>
+            <option value="fireworks.html">06 - Fireworks Show</option>
+            <option value="galaxy-spiral.html">07 - Galaxy Spiral</option>
+            <option value="neural-network.html">08 - Neural Network</option>
+            <option value="plasma-field.html">09 - Plasma Field</option>
+            <option value="crystal-growth.html">10 - Crystal Growth</option>
+            <option value="aurora-waves.html">11 - Aurora Waves</option>
+            <option value="fractal-tree.html">12 - Fractal Tree</option>
+            <option value="particle-life.html">13 - Particle Life</option>
+            <option value="quantum-field.html">14 - Quantum Field</option>
+            <option value="cosmic-web.html">15 - Cosmic Web</option>
+            <option value="bubble-chamber.html">16 - Bubble Chamber</option>
+            <option value="laser-show.html">17 - Laser Show</option>
+            <option value="mandelbrot.html">18 - Mandelbrot Zoom</option>
+            <option value="fluid-simulation.html">19 - Fluid Simulation</option>
+            <option value="atomic-orbital.html" selected>20 - Atomic Orbital</option>
+            <option value="nebula-cloud.html">21 - Nebula Cloud</option>
+        </select>
+    </div>
+    <script>
+        // Three.js setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Create nucleus
+        const nucleusGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+        const nucleusMaterial = new THREE.MeshPhongMaterial({
+            color: 0xff0000,
+            emissive: 0xff0000,
+            emissiveIntensity: 0.5,
+            shininess: 100
+        });
+        const nucleus = new THREE.Mesh(nucleusGeometry, nucleusMaterial);
+        scene.add(nucleus);
+
+        // Create electron clouds
+        const cloudParticles = [];
+        const CLOUD_COUNT = 3;
+        const PARTICLES_PER_CLOUD = 1000;
+
+        function createCloud(radius, color) {
+            const particles = new THREE.BufferGeometry();
+            const positions = [];
+            const colors = [];
+            const sizes = [];
+
+            for (let i = 0; i < PARTICLES_PER_CLOUD; i++) {
+                // Generate random spherical coordinates
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos(2 * Math.random() - 1);
+                const r = radius + (Math.random() - 0.5) * 0.5;
+
+                // Convert to Cartesian coordinates
+                const x = r * Math.sin(phi) * Math.cos(theta);
+                const y = r * Math.sin(phi) * Math.sin(theta);
+                const z = r * Math.cos(phi);
+
+                positions.push(x, y, z);
+                
+                // Add some color variation
+                const colorVariation = Math.random() * 0.2;
+                colors.push(
+                    color.r + colorVariation,
+                    color.g + colorVariation,
+                    color.b + colorVariation
+                );
+
+                sizes.push(Math.random() * 2 + 1);
+            }
+
+            particles.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            particles.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            particles.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.05,
+                vertexColors: true,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                opacity: 0.6
+            });
+
+            const cloud = new THREE.Points(particles, material);
+            scene.add(cloud);
+            return cloud;
+        }
+
+        // Create multiple electron clouds at different radii
+        const cloudColors = [
+            new THREE.Color(0x00ffff),
+            new THREE.Color(0x0088ff),
+            new THREE.Color(0x0044ff)
+        ];
+
+        for (let i = 0; i < CLOUD_COUNT; i++) {
+            const radius = 2 + i * 1.5;
+            const cloud = createCloud(radius, cloudColors[i]);
+            cloudParticles.push({
+                mesh: cloud,
+                radius: radius,
+                rotationSpeed: 0.2 / (i + 1),
+                angle: Math.random() * Math.PI * 2
+            });
+        }
+
+        // Add ambient light
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+
+        // Add point light
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+
+        // Camera position
+        camera.position.z = 10;
+
+        // Animation variables
+        let time = 0;
+        const rotationSpeed = 0.001;
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetRotationX = 0;
+        let targetRotationY = 0;
+        const sensitivity = 0.002;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - window.innerWidth / 2) * sensitivity;
+            mouseY = (event.clientY - window.innerHeight / 2) * sensitivity;
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.01;
+
+            // Rotate clouds
+            cloudParticles.forEach((cloud, index) => {
+                cloud.angle += cloud.rotationSpeed;
+                
+                // Create elliptical orbits
+                const a = cloud.radius;
+                const b = cloud.radius * 0.8;
+                
+                cloud.mesh.rotation.x += 0.002;
+                cloud.mesh.rotation.y += 0.003;
+
+                // Update cloud positions with wave-like motion
+                const positions = cloud.mesh.geometry.attributes.position.array;
+                for (let i = 0; i < positions.length; i += 3) {
+                    const theta = Math.random() * Math.PI * 2;
+                    const amplitude = 0.1;
+                    const frequency = 2;
+                    
+                    positions[i] += Math.sin(time * frequency + theta) * amplitude;
+                    positions[i + 1] += Math.cos(time * frequency + theta) * amplitude;
+                    positions[i + 2] += Math.sin(time * frequency + theta) * amplitude;
+                }
+                cloud.mesh.geometry.attributes.position.needsUpdate = true;
+            });
+
+            // Smooth camera rotation
+            targetRotationX += (mouseX - targetRotationX) * 0.05;
+            targetRotationY += (mouseY - targetRotationY) * 0.05;
+
+            camera.position.x = Math.sin(targetRotationX) * 10;
+            camera.position.z = Math.cos(targetRotationX) * 10;
+            camera.position.y = targetRotationY * 5;
+            camera.lookAt(scene.position);
+
+            // Render scene
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

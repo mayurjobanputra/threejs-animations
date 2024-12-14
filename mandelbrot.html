@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Gallery - Mandelbrot Zoom</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            display: block;
+        }
+        .nav-dropdown {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        select {
+            font-family: 'Share Tech Mono', monospace;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+        select:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #00ff00;
+        }
+        option {
+            background: #000;
+            color: #00ff00;
+        }
+        option:checked {
+            background: #003300;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-dropdown">
+        <select onchange="window.location.href=this.value">
+            <option value="index.html">01 - Starfield Black Hole</option>
+            <option value="matrix-rain.html">02 - Matrix Digital Rain</option>
+            <option value="particle-vortex.html">03 - Particle Vortex</option>
+            <option value="wave-particles.html">04 - Wave Particles</option>
+            <option value="dna-helix.html">05 - DNA Helix</option>
+            <option value="fireworks.html">06 - Fireworks Show</option>
+            <option value="galaxy-spiral.html">07 - Galaxy Spiral</option>
+            <option value="neural-network.html">08 - Neural Network</option>
+            <option value="plasma-field.html">09 - Plasma Field</option>
+            <option value="crystal-growth.html">10 - Crystal Growth</option>
+            <option value="aurora-waves.html">11 - Aurora Waves</option>
+            <option value="fractal-tree.html">12 - Fractal Tree</option>
+            <option value="particle-life.html">13 - Particle Life</option>
+            <option value="quantum-field.html">14 - Quantum Field</option>
+            <option value="cosmic-web.html">15 - Cosmic Web</option>
+            <option value="bubble-chamber.html">16 - Bubble Chamber</option>
+            <option value="laser-show.html">17 - Laser Show</option>
+            <option value="mandelbrot.html" selected>18 - Mandelbrot Zoom</option>
+            <option value="fluid-simulation.html">19 - Fluid Simulation</option>
+            <option value="atomic-orbital.html">20 - Atomic Orbital</option>
+            <option value="nebula-cloud.html">21 - Nebula Cloud</option>
+        </select>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let centerX = -0.5;
+        let centerY = 0;
+        let zoom = 1;
+        let targetZoom = 1;
+        const maxIterations = 100;
+
+        function mandelbrot(x0, y0) {
+            let x = 0;
+            let y = 0;
+            let iteration = 0;
+
+            while (x * x + y * y <= 4 && iteration < maxIterations) {
+                const xTemp = x * x - y * y + x0;
+                y = 2 * x * y + y0;
+                x = xTemp;
+                iteration++;
+            }
+
+            return iteration;
+        }
+
+        function draw() {
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+            const data = imageData.data;
+
+            const scale = 4 / (canvas.height * zoom);
+            const offsetX = centerX - (canvas.width / canvas.height) * 2 / zoom;
+            const offsetY = centerY - 2 / zoom;
+
+            for (let py = 0; py < canvas.height; py++) {
+                for (let px = 0; px < canvas.width; px++) {
+                    const x0 = offsetX + px * scale;
+                    const y0 = offsetY + py * scale;
+
+                    const iteration = mandelbrot(x0, y0);
+                    const index = (py * canvas.width + px) * 4;
+
+                    if (iteration === maxIterations) {
+                        data[index] = 0;
+                        data[index + 1] = 0;
+                        data[index + 2] = 0;
+                    } else {
+                        const hue = (iteration / maxIterations * 360 + 240) % 360;
+                        const saturation = 70;
+                        const lightness = 50;
+
+                        // Convert HSL to RGB
+                        const c = (1 - Math.abs(2 * lightness / 100 - 1)) * saturation / 100;
+                        const x = c * (1 - Math.abs((hue / 60) % 2 - 1));
+                        const m = lightness / 100 - c / 2;
+
+                        let r, g, b;
+
+                        if (hue < 60) {
+                            [r, g, b] = [c, x, 0];
+                        } else if (hue < 120) {
+                            [r, g, b] = [x, c, 0];
+                        } else if (hue < 180) {
+                            [r, g, b] = [0, c, x];
+                        } else if (hue < 240) {
+                            [r, g, b] = [0, x, c];
+                        } else if (hue < 300) {
+                            [r, g, b] = [x, 0, c];
+                        } else {
+                            [r, g, b] = [c, 0, x];
+                        }
+
+                        data[index] = (r + m) * 255;
+                        data[index + 1] = (g + m) * 255;
+                        data[index + 2] = (b + m) * 255;
+                    }
+                    data[index + 3] = 255;
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Smooth zoom animation
+            zoom = zoom * 0.99 + targetZoom * 0.01;
+            draw();
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Add mouse interaction
+        canvas.addEventListener('click', (e) => {
+            const scale = 4 / (canvas.height * zoom);
+            const offsetX = centerX - (canvas.width / canvas.height) * 2 / zoom;
+            const offsetY = centerY - 2 / zoom;
+
+            centerX = offsetX + e.clientX * scale;
+            centerY = offsetY + e.clientY * scale;
+            targetZoom *= 2;
+        });
+
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            targetZoom /= 2;
+        });
+
+        // Start animation
+        animate();
+    </script>
+</body>
+</html>

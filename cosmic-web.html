@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Gallery - Cosmic Web</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            display: block;
+        }
+        .nav-dropdown {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        select {
+            font-family: 'Share Tech Mono', monospace;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+        select:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #00ff00;
+        }
+        option {
+            background: #000;
+            color: #00ff00;
+        }
+        option:checked {
+            background: #003300;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-dropdown">
+        <select onchange="window.location.href=this.value">
+            <option value="index.html">01 - Starfield Black Hole</option>
+            <option value="matrix-rain.html">02 - Matrix Digital Rain</option>
+            <option value="particle-vortex.html">03 - Particle Vortex</option>
+            <option value="wave-particles.html">04 - Wave Particles</option>
+            <option value="dna-helix.html">05 - DNA Helix</option>
+            <option value="fireworks.html">06 - Fireworks Show</option>
+            <option value="galaxy-spiral.html">07 - Galaxy Spiral</option>
+            <option value="neural-network.html">08 - Neural Network</option>
+            <option value="plasma-field.html">09 - Plasma Field</option>
+            <option value="crystal-growth.html">10 - Crystal Growth</option>
+            <option value="aurora-waves.html">11 - Aurora Waves</option>
+            <option value="fractal-tree.html">12 - Fractal Tree</option>
+            <option value="particle-life.html">13 - Particle Life</option>
+            <option value="quantum-field.html">14 - Quantum Field</option>
+            <option value="cosmic-web.html" selected>15 - Cosmic Web</option>
+            <option value="bubble-chamber.html">16 - Bubble Chamber</option>
+            <option value="laser-show.html">17 - Laser Show</option>
+            <option value="mandelbrot.html">18 - Mandelbrot Zoom</option>
+            <option value="fluid-simulation.html">19 - Fluid Simulation</option>
+            <option value="atomic-orbital.html">20 - Atomic Orbital</option>
+            <option value="nebula-cloud.html">21 - Nebula Cloud</option>
+        </select>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Node {
+            constructor(x, y, mass) {
+                this.x = x;
+                this.y = y;
+                this.mass = mass;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.connections = [];
+                this.hue = Math.random() * 60 + 180; // Blue to purple range
+            }
+
+            connect(node) {
+                if (!this.connections.includes(node)) {
+                    this.connections.push(node);
+                    node.connections.push(this);
+                }
+            }
+
+            update() {
+                // Apply gravitational forces
+                nodes.forEach(node => {
+                    if (node === this) return;
+
+                    const dx = node.x - this.x;
+                    const dy = node.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance > 0 && distance < 200) {
+                        const force = (node.mass * this.mass) / (distance * distance);
+                        const angle = Math.atan2(dy, dx);
+                        this.vx += Math.cos(angle) * force * 0.01;
+                        this.vy += Math.sin(angle) * force * 0.01;
+                    }
+                });
+
+                // Apply velocity
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Add friction
+                this.vx *= 0.99;
+                this.vy *= 0.99;
+
+                // Bounce off walls
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                // Keep within bounds
+                this.x = Math.max(0, Math.min(canvas.width, this.x));
+                this.y = Math.max(0, Math.min(canvas.height, this.y));
+            }
+
+            draw() {
+                // Draw connections
+                this.connections.forEach(node => {
+                    const dx = node.x - this.x;
+                    const dy = node.y - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 200) {
+                        ctx.beginPath();
+                        ctx.moveTo(this.x, this.y);
+                        ctx.lineTo(node.x, node.y);
+                        ctx.strokeStyle = `hsla(${this.hue}, 70%, 50%, ${1 - distance/200})`;
+                        ctx.lineWidth = (1 - distance/200) * 2;
+                        ctx.stroke();
+                    }
+                });
+
+                // Draw node
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.mass * 2
+                );
+                gradient.addColorStop(0, `hsla(${this.hue}, 70%, 50%, 0.5)`);
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.mass * 2, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }
+        }
+
+        const nodes = [];
+        const numNodes = 50;
+
+        // Create nodes
+        for (let i = 0; i < numNodes; i++) {
+            nodes.push(new Node(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height,
+                Math.random() * 2 + 1
+            ));
+        }
+
+        // Create initial connections
+        nodes.forEach(node => {
+            const numConnections = Math.floor(Math.random() * 3) + 1;
+            for (let i = 0; i < numConnections; i++) {
+                const target = nodes[Math.floor(Math.random() * nodes.length)];
+                if (target !== node) {
+                    node.connect(target);
+                }
+            }
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            nodes.forEach(node => {
+                node.update();
+                node.draw();
+            });
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Add mouse interaction
+        let mouseNode = null;
+        canvas.addEventListener('mousemove', (e) => {
+            if (!mouseNode) {
+                mouseNode = new Node(e.clientX, e.clientY, 3);
+                nodes.push(mouseNode);
+            }
+            mouseNode.x = e.clientX;
+            mouseNode.y = e.clientY;
+        });
+
+        animate();
+    </script>
+</body>
+</html>

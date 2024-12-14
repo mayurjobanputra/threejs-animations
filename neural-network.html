@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Gallery - Neural Network</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        canvas {
+            display: block;
+        }
+        .nav-dropdown {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        select {
+            font-family: 'Share Tech Mono', monospace;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+        }
+        select:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #00ff00;
+        }
+        option {
+            background: #000;
+            color: #00ff00;
+        }
+        option:checked {
+            background: #003300;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-dropdown">
+        <select onchange="window.location.href=this.value">
+            <option value="index.html">01 - Starfield Black Hole</option>
+            <option value="matrix-rain.html">02 - Matrix Digital Rain</option>
+            <option value="particle-vortex.html">03 - Particle Vortex</option>
+            <option value="wave-particles.html">04 - Wave Particles</option>
+            <option value="dna-helix.html">05 - DNA Helix</option>
+            <option value="fireworks.html">06 - Fireworks Show</option>
+            <option value="galaxy-spiral.html">07 - Galaxy Spiral</option>
+            <option value="neural-network.html" selected>08 - Neural Network</option>
+            <option value="plasma-field.html">09 - Plasma Field</option>
+            <option value="crystal-growth.html">10 - Crystal Growth</option>
+            <option value="aurora-waves.html">11 - Aurora Waves</option>
+            <option value="fractal-tree.html">12 - Fractal Tree</option>
+            <option value="particle-life.html">13 - Particle Life</option>
+            <option value="quantum-field.html">14 - Quantum Field</option>
+            <option value="cosmic-web.html">15 - Cosmic Web</option>
+            <option value="bubble-chamber.html">16 - Bubble Chamber</option>
+            <option value="laser-show.html">17 - Laser Show</option>
+            <option value="mandelbrot.html">18 - Mandelbrot Zoom</option>
+            <option value="fluid-simulation.html">19 - Fluid Simulation</option>
+            <option value="atomic-orbital.html">20 - Atomic Orbital</option>
+            <option value="nebula-cloud.html">21 - Nebula Cloud</option>
+        </select>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Neuron {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 4;
+                this.connections = [];
+                this.activity = 0;
+                this.targetActivity = 0;
+            }
+
+            connect(neuron) {
+                this.connections.push(neuron);
+            }
+
+            update() {
+                this.activity += (this.targetActivity - this.activity) * 0.1;
+                if (Math.random() < 0.05) {
+                    this.targetActivity = Math.random();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 255, 255, ${0.3 + this.activity * 0.7})`;
+                ctx.fill();
+
+                this.connections.forEach(neuron => {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(neuron.x, neuron.y);
+                    ctx.strokeStyle = `rgba(0, 255, 255, ${0.1 + this.activity * 0.2})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                });
+            }
+        }
+
+        const layers = [];
+        const layerCount = 5;
+        const neuronsPerLayer = 10;
+
+        // Create layers of neurons
+        for (let i = 0; i < layerCount; i++) {
+            const layer = [];
+            for (let j = 0; j < neuronsPerLayer; j++) {
+                const x = (canvas.width / (layerCount + 1)) * (i + 1);
+                const y = (canvas.height / (neuronsPerLayer + 1)) * (j + 1);
+                layer.push(new Neuron(x, y));
+            }
+            layers.push(layer);
+        }
+
+        // Connect neurons between layers
+        for (let i = 0; i < layers.length - 1; i++) {
+            const currentLayer = layers[i];
+            const nextLayer = layers[i + 1];
+            
+            currentLayer.forEach(neuron => {
+                nextLayer.forEach(nextNeuron => {
+                    if (Math.random() < 0.3) {
+                        neuron.connect(nextNeuron);
+                    }
+                });
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            layers.forEach(layer => {
+                layer.forEach(neuron => {
+                    neuron.update();
+                    neuron.draw();
+                });
+            });
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        animate();
+    </script>
+</body>
+</html>
