@@ -2,6 +2,12 @@
 
 A collection of 21 interactive 3D animations and visual effects built with Three.js. From particle systems and quantum visualizations to cosmic simulations, this gallery showcases the capabilities of modern WebGL graphics.
 
+## 🚀 Getting Started
+
+1. Clone this repository
+2. Open `index.html` in your web browser
+3. No server required - all animations can run locally!
+
 ## 🎨 Animations
 
 ### 1. Starfield Black Hole
